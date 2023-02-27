@@ -1,0 +1,15 @@
+<div
+  class="container alert alert-info mt-5 d-flex justify-content-between align-content-center"
+  style="width: 80%; max-height: 600px"
+>
+  <div class="d-flex flex-column flex-wrap align-content-center w-100 gap-4">
+    {{#each data}}
+      <div class="card" style="min-height: 90px; width: 450px;">
+        <div class="card-body">
+          <h5 class="card-title">{{this.title}}</h5>
+          <p class="card-text">{{this.info}}</p>
+        </div>
+      </div>
+    {{/each}}
+  </div>
+</div>
