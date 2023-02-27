@@ -22,7 +22,10 @@ const advancedOptions = { useNewUrlParser: true, useUnifiedTopology: true };
 const MONGO_DATA_BASE_URL = process.env.MONGO_DATA_BASE_URL;
 
 // ---- Configuración de los procesos del servidor para todas las rutas ----
-if (modo === "cluster" && cluster.isMaster) {
+if (
+  (process.env.EX_MODE === "CLUSTER" || modo === "cluster") &&
+  cluster.isMaster
+) {
   for (let i = 0; i < cpusNumber; i++) {
     cluster.fork();
   }

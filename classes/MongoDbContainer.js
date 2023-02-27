@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
-import { config } from "dotenv";
-config();
+import dotenv from "dotenv";
+import { deploy } from "../helpers/cli.js";
+if (process.env.NODE_ENV === "dev" || deploy === "dev") dotenv.config();
 const MONGO_DATA_BASE_URL = process.env.MONGO_DATA_BASE_URL;
 
 async function CRUD(databaseUrl) {
