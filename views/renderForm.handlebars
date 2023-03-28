@@ -1,0 +1,25 @@
+<div class="container">
+  <h1 class="text-center mt-10">{{title}}</h1>
+  <form action={{actionPath}} method="post" class="mx-auto" style="width: 80%">
+    {{#each items}}
+      <div class="mb-3">
+        <label for={{this.id}} class="form-label">{{this.label}}</label>
+        <input
+          type={{this.type}}
+          class="form-control"
+          id={{this.id}}
+          name={{this.id}}
+          placeholder="Ingresa tu {{this.placeholder}}"
+        />
+      </div>
+    {{/each}}
+    {{#each buttons}}
+      <button
+        type={{this.type}}
+        class="btn {{this.class}}"
+        id={{this.id}}
+      >{{this.text}}</button>
+    {{/each}}
+  </form>
+</div>
+{{! <script src="/events.js"></script> }}
