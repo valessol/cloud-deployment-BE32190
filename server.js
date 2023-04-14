@@ -1,12 +1,16 @@
 import express from "express";
-import config from "./config.js";
-import authRouter from "./router/auth.js";
-import messagesRouter from "./router/messages.js";
-import productsRouter from "./router/products.js";
+import { Server as HttpServer } from "http";
+import { Server as IOServer } from "socket.io";
 import handlebars from "express-handlebars";
 import session from "express-session";
 import SessionFileStore from "session-file-store";
 import cluster from "cluster";
+import config from "./config.js";
+import authRouter from "./router/auth.js";
+import messagesRouter from "./router/messages.js";
+import productsRouter from "./router/products.js";
+import ProductsServices from "./services/products.js";
+import MessagesServices from "./services/messages.js";
 import logger from "./loggerConfig.js";
 import { serverRequestLogguer } from "./middlewares/logger.js";
 import { modo, getProcessData } from "./helpers/cli.js";
@@ -23,6 +27,8 @@ if ((config.EX_MODE === "CLUSTER" || modo === "cluster") && cluster.isMaster) {
   });
 } else {
   const app = express();
+  const httpServer = new HttpServer(app);
+  const io = new IOServer(httpServer);
 
   app.use(
     session({
@@ -58,8 +64,35 @@ if ((config.EX_MODE === "CLUSTER" || modo === "cluster") && cluster.isMaster) {
     res.redirect("/");
   });
 
+  io.on("connection", async (socket) => {
+    const productsService = ProductsServices;
+    const messagesService = MessagesServices;
+
+    const allProducts = await productsService.getProducts();
+    const allMessages = await messagesService.getMessages();
+
+    socket.emit("show-all-products", allProducts);
+    socket.emit("show-all-messages", allMessages);
+
+    socket.on("add-product", async (product) => {
+      console.log("producto cargado");
+      await productsService.saveProductService(product);
+      const newProducts = await productsService.getProducts();
+      io.sockets.emit("show-all-products", newProducts);
+    });
+
+    socket.on("add-message", async (message) => {
+      console.log("mensaje recibido");
+
+      await messagesService.saveMessageService(message);
+      const newMessages = await messagesService.getMessages();
+
+      io.sockets.emit("show-all-messages", newMessages);
+    });
+  });
+
   const PORT = config.PORT;
-  app.listen(PORT, () => {
+  httpServer.listen(PORT, () => {
     console.log(
       `Servidor escuchando en el puerto ${PORT}: Environment: ${config.NODE_ENV}`
     );

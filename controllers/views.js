@@ -1,12 +1,11 @@
 import { items } from "../constants/formItems.js";
-import products from "./products.js";
-import messages from "./messages.js";
-import { createContext } from "../helpers/index.js";
+import ProductsServices from "../services/products.js";
+import MessagesServices from "../services/messages.js";
 
 class ViewsController {
   constructor() {
-    this.products = products;
-    this.messages = messages;
+    this.productsServices = ProductsServices;
+    this.messagesServices = MessagesServices;
   }
 
   renderHome = async (req, res) => {
@@ -14,15 +13,8 @@ class ViewsController {
       const isAuth = req.isAuthenticated();
 
       if (!isAuth) return res.redirect("/login");
-
-      const allProducts = await this.products.getProducts();
-      const allMessages = await this.messages.getMessages();
-      const context = createContext(allProducts, allMessages);
-      console.log(context);
       res.render("form", {
         username: req.user.username,
-        products: context.products,
-        messages: context.messages,
       });
     } catch (error) {
       console.log(error);
