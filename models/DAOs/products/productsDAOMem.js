@@ -2,9 +2,18 @@ import ProductsBaseDAO from "./productsDAO.js";
 import productDTO from "../../DTOs/productsDTO.js";
 
 class ProductsDAOMem extends ProductsBaseDAO {
+  static instance;
+
   constructor() {
     super();
     this.products = [];
+  }
+
+  static getInstance() {
+    if (!this.instance) {
+      this.instance = new ProductsDAOMem();
+    }
+    return this.instance;
   }
 
   getProducts = async () => {
@@ -25,4 +34,4 @@ class ProductsDAOMem extends ProductsBaseDAO {
   };
 }
 
-export default ProductsDAOMem;
+export default ProductsDAOMem.getInstance();

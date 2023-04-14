@@ -10,6 +10,7 @@ class Products {
       title: Joi.string().required(),
       price: Joi.number().required(),
       thumbnail: Joi.string(),
+      timestamp: Joi.date(),
     });
 
     const { error } = ProductSchema.validate(product);

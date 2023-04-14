@@ -2,9 +2,18 @@ import MessagesBaseDAO from "./messagesDAO.js";
 import messageDTO from "../../DTOs/messagesDTO.js";
 
 class MessagesDAOMem extends MessagesBaseDAO {
+  static instance;
+
   constructor() {
     super();
     this.messages = [];
+  }
+
+  static getInstance() {
+    if (!this.instance) {
+      this.instance = new MessagesDAOMem();
+    }
+    return this.instance;
   }
 
   getMessages = async () => {
@@ -25,4 +34,4 @@ class MessagesDAOMem extends MessagesBaseDAO {
   };
 }
 
-export default MessagesDAOMem;
+export default MessagesDAOMem.getInstance();

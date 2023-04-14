@@ -1,41 +1,49 @@
 import ProductsBaseDAO from "./productsDAO.js";
 import mongoose from "mongoose";
-import mongodb from "mongodb";
 import config from "../../../config.js";
 import productsSchema from "../../schemas/productsSchema.js";
-
-const { ObjectId } = mongodb;
+import { ObjectId } from "mongodb";
+import { convertToDTO } from "../../DTOs/productsDTO.js";
 
 class ProductsDAOMongo extends ProductsBaseDAO {
-  constructor(database, collection) {
+  static instance;
+
+  constructor(collection) {
     super();
     (async () => {
       console.log("Conectando a la base de datos de Mongo DB...");
 
-      const connection = mongoose.connect(config.MONGO_DATA_BASE_URL, {
+      mongoose.connect(config.MONGO_DATA_BASE_URL, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
       });
 
-      // const db = connection.db(database);
-      // this._collection = db.collection(collection);
       this.model = mongoose.model(collection, productsSchema);
 
       console.log("Base de datos conectada");
     })();
   }
 
-  getProducts = async (_id) => {
+  static getInstance(collection) {
+    if (!this.instance) {
+      this.instance = new ProductsDAOMongo(collection);
+    }
+    return this.instance;
+  }
+
+  getProducts = async () => {
     try {
-      if (_id) {
-        const product = await this.model.findOne({ _id: ObjectId(_id) });
-        return [product];
-      } else {
-        //console.log(this.model);
-        const products = await this.model.find({});
-        //console.log(products);
-        return products;
-      }
+      const products = await this.model.find({});
+      return convertToDTO(products);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  getProductById = async (_id) => {
+    try {
+      const product = await this.model.findById(_id);
+      return convertToDTO(product);
     } catch (err) {
       console.log(err);
     }
@@ -43,13 +51,41 @@ class ProductsDAOMongo extends ProductsBaseDAO {
 
   saveProduct = async (product) => {
     try {
-      // await this.model.insertOne(product);
       await this.model.create({ ...product });
-      return product;
+      const products = await this.getProducts();
+      const savedProduct = products.find(
+        (prod) => prod.title === product.title
+      );
+      return convertToDTO(savedProduct);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  updateProduct = async (id, data) => {
+    try {
+      const _id = new ObjectId(id);
+      await this.model.updateOne({ _id }, { ...data });
+      const product = await this.getProductById(id);
+      return convertToDTO(product);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  deleteProduct = async (id) => {
+    try {
+      const productToDelete = await this.getProductById(id);
+      if (productToDelete) {
+        const _id = new ObjectId(id);
+        await this.model.findOneAndDelete({ _id });
+        return convertToDTO(productToDelete);
+      }
+      return undefined;
     } catch (err) {
       console.log(err);
     }
   };
 }
 
-export default ProductsDAOMongo;
+export default ProductsDAOMongo.getInstance("products");

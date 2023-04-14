@@ -8,6 +8,7 @@ const schema = {
   avatar: { type: String, maxLength: 500 },
   email: { type: String, required: true, maxLength: 500 },
   message: { type: String, required: true, maxLength: 1000 },
+  timestamp: { type: String, required: true, maxLength: 1000 },
 };
 
 const messagesSchema = new mongoose.Schema({ ...schema });

@@ -5,10 +5,9 @@ class MessagesDAOFactory {
   static get(type) {
     const persistenceContainer = {
       memory: MessagesDAOMem,
-      //file: new MessagesDAOFile(),
       mongo: MessagesDAOMongo,
     };
-    return new persistenceContainer[type]("ecommerce", "messages");
+    return persistenceContainer[type];
   }
 }
 

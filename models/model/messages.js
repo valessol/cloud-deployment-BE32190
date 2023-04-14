@@ -6,7 +6,7 @@ class Messages {
   }
 
   static validate(message) {
-    const ProductSchema = Joi.object({
+    const MessageSchema = Joi.object({
       email: Joi.string().required(),
       name: Joi.string().required(),
       surname: Joi.string(),
@@ -14,9 +14,10 @@ class Messages {
       alias: Joi.string(),
       avatar: Joi.string(),
       message: Joi.string().required(),
+      timestamp: Joi.date().required(),
     });
 
-    const { error } = ProductSchema.validate(message);
+    const { error } = MessageSchema.validate(message);
     if (error) {
       throw error;
     }
